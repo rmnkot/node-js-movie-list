@@ -1,0 +1,80 @@
+{
+  "extends": [
+    "airbnb", "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "settings": {
+    "import/extensions": [".js", ".ts"],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts"]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
+  },
+  "plugins": ["@typescript-eslint", "prettier", "unused-imports"],
+  "rules": {
+    "import/prefer-default-export": 0,
+    "import/no-named-as-default": 0,
+    // "import/no-extraneous-dependencies": [2, { devDependencies: ['**/test.tsx', '**/test.ts'] }],
+    "import/no-extraneous-dependencies": [
+      "warn",
+      {
+        "devDependencies": true
+      }
+    ],
+    "prefer-destructuring": 0,
+    "function-paren-newline": ["error", "consistent"],
+    "object-curly-newline": [
+      "error",
+      {
+        "consistent": true
+      }
+    ],
+    "unused-imports/no-unused-imports": "warn",
+    "func-names": 0,
+    "operator-linebreak": 0,
+    "arrow-parens": 0,
+    "import/no-unresolved": 2,
+    "no-unused-expressions": 0,
+    "max-classes-per-file": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-empty-interface": 0,
+    "@typescript-eslint/no-shadow": "warn",
+    "no-unused-vars": 0,
+    "@typescript-eslint/no-unused-vars": ["warn", { "vars": "local", "args": "none", "ignoreRestSiblings": false }],
+    "@typescript-eslint/camelcase": 0,
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^[A-Z]",
+          "match": true
+        }
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-empty-function": ["warn"],
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/ban-types": 0,
+    "arrow-body-style": 0,
+    "no-use-before-define": "off",
+    "camelcase": "off",
+    "no-shadow": "off",
+    "no-restricted-syntax": 0,
+    "no-await-in-loop": 0,
+    "import/extensions": 0,
+    "class-methods-use-this": 0,
+    "no-underscore-dangle": 0,
+    "no-continue": 0,
+    "prefer-const": 1,
+    "no-case-declarations": 0
+  }
+
+}
