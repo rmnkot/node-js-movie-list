@@ -1,4 +1,4 @@
-import Cli from './cli';
+import Cli from './utils/cli';
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_ENV = 'development';

@@ -1,0 +1,33 @@
+# VSCode REST Client
+
+# Not found request
+GET http://localhost:3000/
+
+###
+
+GET http://localhost:3000/movies?t=movie1
+
+###
+
+GET http://localhost:3000/movies
+
+###
+
+# Invalid post without a body
+POST http://localhost:3000/movies
+Content-Type: application/json
+
+###
+
+# Invalid body object
+POST http://localhost:3000/movies
+Content-Type: application/json
+
+{"description": "Description"}
+
+###
+
+POST http://localhost:3000/movies
+Content-Type: application/json
+
+{"title": "Movie3"}
