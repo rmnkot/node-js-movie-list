@@ -2,9 +2,8 @@ import { IncomingMessage } from 'http';
 import logger from '../utils/logger';
 
 export const processRequest = async (request: IncomingMessage) => {
-  const result = await new Promise<string>((resolve, reject) => {
+  const body = await new Promise<string>((resolve, reject) => {
     const buffer: Buffer[] = [];
-    let body: string;
 
     request
       .on('error', (err) => {
@@ -15,10 +14,9 @@ export const processRequest = async (request: IncomingMessage) => {
         buffer.push(chunk);
       })
       .on('end', () => {
-        body = Buffer.concat(buffer).toString();
-        resolve(body);
+        resolve(Buffer.concat(buffer).toString());
       });
   });
 
-  return { body: result };
+  return { body };
 };

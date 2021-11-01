@@ -1,6 +1,7 @@
 import { ServerResponse } from 'http';
 import { createValidationError } from './errorService';
 import { fakeMovieList } from '../data/fakeMovieList';
+import { CreateServiceProps } from '../router';
 
 const getMovies = (url: URL, res: ServerResponse) => {
   const params = url.searchParams;
@@ -40,19 +41,17 @@ const addMovie = (url: URL, res: ServerResponse, body?: string) => {
   res.end(JSON.stringify(fakeMovieList));
 };
 
-export const createMovieService = (
-  url: URL,
-  method: string = 'GET',
-  res: ServerResponse,
-  body?: string,
-) => {
-  switch (method) {
+export const createMovieService: CreateServiceProps = (req, res, url, body) => {
+  switch (req.method) {
+    case 'GET':
+      getMovies(url, res);
+      break;
+
     case 'POST':
       addMovie(url, res, body);
       break;
 
     default:
-      getMovies(url, res);
       break;
   }
 };
