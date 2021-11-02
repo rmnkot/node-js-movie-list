@@ -1,15 +1,21 @@
-const logger = (() => {
-  const log = (...args: any[]) => console.log(...args);
-  const error = (...args: any[]) => console.error('\x1b[31m%s\x1b[0m', ...args);
-  const warn = (...args: any[]) => console.warn('\x1b[33m%s\x1b[0m', ...args);
-  const info = (...args: any[]) => console.info('\x1b[36m%s\x1b[0m', ...args);
+import { createLogger, transports, format } from 'winston';
 
-  return {
-    log,
-    error,
-    warn,
-    info,
-  };
-})();
+const logger = createLogger({
+  transports: [
+    new transports.Console({
+      level: 'info',
+      format: format.combine(
+        format.colorize({ colors: { info: 'cyan' }, all: true }),
+        format.timestamp(),
+        format.simple(),
+      ),
+    }),
+    new transports.File({
+      level: 'error',
+      filename: 'error.log',
+      format: format.combine(format.timestamp(), format.simple()),
+    }),
+  ],
+});
 
 export default logger;

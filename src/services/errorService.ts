@@ -6,7 +6,7 @@ export const createValidationError = (
   path: string,
   message: string,
 ) => {
-  logger.error(`[path: ${path}, message: ${message}]`);
+  logger.error(`path: ${path}, message: ${message}`);
   res.writeHead(422, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: { path, message } }));
 };

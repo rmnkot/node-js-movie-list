@@ -12,7 +12,7 @@ export type CreateServiceProps = (
 ) => void;
 
 export default class Router {
-  _PROTOCOL = 'http';
+  private _PROTOCOL = 'http';
 
   private _baseUrl: string;
 
@@ -27,8 +27,12 @@ export default class Router {
   constructor(req: IncomingMessage, res: ServerResponse) {
     this._request = req;
     this._response = res;
-    this._baseUrl = `${this._PROTOCOL}://${req.headers.host}`;
+
+    this._baseUrl = `${this._PROTOCOL}://${this._request.headers.host}`;
     this._url = new URL(req.url || '', this._baseUrl);
+
+    logger.info(`Request url: ${this._url.pathname}`);
+    logger.info(`Params: ${this._url.searchParams}`);
   }
 
   createRout = (pathname: string, createService: CreateServiceProps) => {
@@ -39,6 +43,7 @@ export default class Router {
   serve = async () => {
     try {
       const { body } = await processRequest(this._request);
+
       this._router[this._url.pathname]
         ? this._router[this._url.pathname](this._request, this._response, this._url, body)
         : createNotFoundError(this._response);
