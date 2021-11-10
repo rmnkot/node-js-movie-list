@@ -1,35 +1,44 @@
-const logger = require('./logger');
+import logger from './logger';
 
 const optionsTemplate = `Options list:
   --help:    |list of all available options
   -e:        |environment variable < -e development/production >
 `;
+
 const errorMessage = 'Invalid option';
 const envMessage =
   'Please, provide either "development" or "production" as an environment value';
 
 const envList = ['development', 'production'];
 
+type OptionsMap = {
+  [key: string]: (value: string) => void;
+};
+
 class Cli {
-  _cliArgs;
-  _flag;
-  _value;
-  env;
+  _cliArgs: string[];
+
+  _flag: string;
+
+  _value: string;
+
+  env: string;
 
   constructor() {
     this._cliArgs = process.argv.slice(2);
     this._flag = this._cliArgs[0];
     this._value = this._cliArgs[1];
+    this.env = '';
     this._init();
   }
 
   _processOptions = () => {
-    const optionsMap = {
-      '--help': () => {
+    const optionsMap: OptionsMap = {
+      '--help': (): void => {
         logger.warn(optionsTemplate);
         process.exit(1);
       },
-      '-e': (value) => {
+      '-e': (value: string) => {
         if (!envList.includes(value)) {
           logger.warn(envMessage);
           process.exit(1);
@@ -52,4 +61,4 @@ class Cli {
   };
 }
 
-module.exports = new Cli();
+export default new Cli();
