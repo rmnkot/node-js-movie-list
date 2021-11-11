@@ -1,37 +1,24 @@
-# VSCode REST Client
-
-# Not found request
-GET http://localhost:3000/
+GET http://localhost:3000/api/movies?sortBy=Title&page=1&limit=3&order=desc
 
 ###
 
-GET http://localhost:3000/login
-
-###
-
-GET http://localhost:3000/movies?t=movie1
-
-###
-
-GET http://localhost:3000/movies
-
-###
-
-# Invalid post without a body
-POST http://localhost:3000/movies
+POST http://localhost:3000/api/movies
 Content-Type: application/json
 
-###
-
-# Invalid body object
-POST http://localhost:3000/movies
-Content-Type: application/json
-
-{"description": "Description"}
+{"name": "avatar", "comment": "Some text", "personalScore": 9.9}
 
 ###
 
-POST http://localhost:3000/movies
+GET http://localhost:3000/api/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
+
+###
+
+# PATCH  http://localhost:3000/api/movies/1
+PATCH  http://localhost:3000/api/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
 Content-Type: application/json
 
-{"title": "Movie3"}
+{"comment": "My favourite", "personalScore": 3.7}
+
+###
+
+DELETE  http://localhost:3000/api/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
