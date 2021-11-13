@@ -3,8 +3,8 @@ import { validationResult } from 'express-validator';
 import config from '../config';
 import logger from '../utils/logger';
 import HttpService from '../services/httpService';
-import StorageService from '../services/storageService';
-import { MovieRequestBody, SortOrder } from './types';
+import StorageService, { StorageError } from '../services/storageService';
+import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
 import { FakeMovieListType } from '../data/fakeMovieList';
 
 class MovieController {
@@ -27,20 +27,7 @@ class MovieController {
     }
   };
 
-  getAll = async (
-    req: Request<
-      {},
-      {},
-      {},
-      {
-        sortBy?: keyof FakeMovieListType;
-        page?: number;
-        limit?: number;
-        order?: SortOrder;
-      }
-    >,
-    res: Response,
-  ) => {
+  getAll = async (req: Request<{}, {}, {}, GetAllRequestQuery>, res: Response) => {
     try {
       const validationErrors = this.applyValidationResult(req as unknown as Request, res);
 
@@ -75,7 +62,7 @@ class MovieController {
     }
   };
 
-  create = async (req: Request<{}, {}, MovieRequestBody>, res: Response) => {
+  create = async (req: Request<{}, {}, CreateRequestBody>, res: Response) => {
     try {
       const validationErrors = this.applyValidationResult(req, res);
 
@@ -91,6 +78,8 @@ class MovieController {
       const requestData = { name, comment, personalScore };
 
       const data = StorageService.create(requestData, httpResponse);
+
+      (data as StorageError).error && res.status(400);
 
       res.json(data);
     } catch (error) {
@@ -112,6 +101,8 @@ class MovieController {
 
       const data = StorageService.update(id, { comment, personalScore });
 
+      (data as StorageError).error && res.status(404);
+
       res.json(data);
     } catch (error) {
       logger.error(error);
@@ -130,6 +121,8 @@ class MovieController {
       } = req;
 
       const data = StorageService.delete(id);
+
+      (data as StorageError).error && res.status(404);
 
       res.json(data);
     } catch (error) {

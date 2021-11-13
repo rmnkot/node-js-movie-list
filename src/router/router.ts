@@ -3,6 +3,7 @@ import { body, oneOf, param, query } from 'express-validator';
 import { SortOrder } from '../controllers/types';
 import MovieController from '../controllers/movieController';
 import { modelTemplate } from '../data/fakeMovieList';
+import validationMessage from './validationMessage';
 
 const router = Router();
 
@@ -12,9 +13,7 @@ router
     query('sortBy').custom((value) => {
       if (value && !Object.keys(modelTemplate).includes(value)) {
         return Promise.reject(
-          new Error(
-            `Provide valid sortBy value as one of [${Object.keys(modelTemplate)}]`,
-          ),
+          new Error(validationMessage.oneOf('sortBy', Object.keys(modelTemplate))),
         );
       }
       return Promise.resolve();
@@ -22,9 +21,7 @@ router
     query('order').custom((value) => {
       if (value && ![SortOrder.asc, SortOrder.desc].includes(value)) {
         return Promise.reject(
-          new Error(
-            `Provide valid order value as one of [${[SortOrder.asc, SortOrder.desc]}]`,
-          ),
+          new Error(validationMessage.oneOf('order', [SortOrder.asc, SortOrder.desc])),
         );
       }
       return Promise.resolve();
@@ -32,8 +29,8 @@ router
     MovieController.getAll,
   )
   .post(
-    body('name', 'Name is required').notEmpty(),
-    body('personalScore', 'Score must be from 1 to 10')
+    body('name', validationMessage.required('name')).notEmpty(),
+    body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
     MovieController.create,
@@ -41,18 +38,18 @@ router
 
 router
   .route('/movies/:id')
-  .get(param('id', 'Provide a valid ID').isUUID(4), MovieController.get)
+  .get(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.get)
   .patch(
-    param('id', 'Provide a valid ID').isUUID(4),
+    param('id', validationMessage.invalid('id')).isUUID(4),
     oneOf([
-      body('comment', 'Provide comment').notEmpty(),
-      body('personalScore', 'Provide score').notEmpty(),
+      body('comment', validationMessage.provide('comment')).notEmpty(),
+      body('personalScore', validationMessage.provide('personalScore')).notEmpty(),
     ]),
-    body('personalScore', 'Score must be from 1 to 10')
+    body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
     MovieController.update,
   )
-  .delete(param('id', 'Provide a valid ID').isUUID(4), MovieController.delete);
+  .delete(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.delete);
 
 export default router;

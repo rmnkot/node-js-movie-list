@@ -1,4 +1,3 @@
-import { MovieRequestBody } from '../controllers/types';
 import { ServiceResponseType } from '../services/httpService';
 
 export const modelTemplate = {
@@ -34,7 +33,8 @@ export const modelTemplate = {
 
 export type FakeMovieListType = {
   id: string;
-} & Omit<MovieRequestBody, 'name'> &
-  ServiceResponseType;
+  comment?: string;
+  personalScore?: number;
+} & ServiceResponseType;
 
 export const fakeMovieList: FakeMovieListType[] = [];

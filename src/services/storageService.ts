@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { MovieRequestBody } from '../controllers/types';
+import { CreateRequestBody } from '../controllers/types';
 import { ResponseState, ServiceResponseType } from './httpService';
-import { fakeMovieList, modelTemplate } from '../data/fakeMovieList';
+import { fakeMovieList, FakeMovieListType, modelTemplate } from '../data/fakeMovieList';
+
+export type StorageError = {
+  result: boolean;
+  error: string;
+};
 
 class StorageService {
   get(id: string) {
@@ -14,7 +19,10 @@ class StorageService {
     return fakeMovieList;
   }
 
-  create(requestData: MovieRequestBody, httpResponse: ServiceResponseType) {
+  create(
+    requestData: CreateRequestBody,
+    httpResponse: ServiceResponseType,
+  ): FakeMovieListType | StorageError {
     if (
       fakeMovieList.some(
         (item) =>
@@ -41,7 +49,10 @@ class StorageService {
     return data;
   }
 
-  update(id: string, requestData: Omit<MovieRequestBody, 'name'>) {
+  update(
+    id: string,
+    requestData: Omit<CreateRequestBody, 'name'>,
+  ): FakeMovieListType | StorageError {
     const movie = fakeMovieList.find((item) => item.id === id);
 
     if (!movie) {
@@ -64,11 +75,11 @@ class StorageService {
   delete(id: string) {
     const movieIdx = fakeMovieList.findIndex((item) => item.id === id);
 
-    if (movieIdx === -1) return { result: false };
+    if (movieIdx === -1) return { result: false, error: 'Movie was not found' };
 
     fakeMovieList.splice(movieIdx, 1);
 
-    return { result: true };
+    return { result: true, message: 'Movie was deleted successfully' };
   }
 }
 
