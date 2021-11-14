@@ -1,6 +1,6 @@
 import { ServiceResponseType } from '../services/httpService';
 
-export const modelTemplate = {
+export const movieModel = {
   id: null,
   comment: null,
   personalScore: null,
@@ -31,10 +31,37 @@ export const modelTemplate = {
   Response: null,
 };
 
-export type FakeMovieListType = {
+export type MovieType = {
   id: string;
   comment?: string;
   personalScore?: number;
 } & ServiceResponseType;
 
-export const fakeMovieList: FakeMovieListType[] = [];
+export enum Role {
+  admin = 'admin',
+  user = 'user',
+}
+
+export type UserType = {
+  id: string;
+  email: string;
+  password: string;
+  role: Role;
+};
+
+export type FakeDBType = {
+  movies: MovieType[];
+  users: UserType[];
+};
+
+export const fakeDB: FakeDBType = {
+  movies: [],
+  users: [
+    {
+      id: 'faa733e8-fda5-4c04-847f-d95ede7dbc29',
+      email: 'rmnkot@test.com',
+      password: '$2a$07$rJdO90/c2OKeL7znIlFNNuBAK12PGfm93olcsQ5fI7L.tMSKhJ9ii', // "admin"
+      role: 'admin' as Role.admin,
+    },
+  ],
+};

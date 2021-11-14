@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import UsersController from '../controllers/usersController';
+import usersController from '../controllers/usersController';
 
 const usersRouter = Router();
 
-usersRouter.get('/:user', UsersController.get);
-usersRouter.patch('/favourite', UsersController.setFavourite);
+usersRouter.get('/', usersController.getAll);
+usersRouter.get('/:user', usersController.get);
+usersRouter.patch('/favourite', usersController.setFavourite);
 
 export default usersRouter;

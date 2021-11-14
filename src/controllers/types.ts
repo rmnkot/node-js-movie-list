@@ -1,4 +1,4 @@
-import { FakeMovieListType } from '../data/fakeMovieList';
+import { MovieType } from '../data/fakeDB';
 
 export type CreateRequestBody = {
   name: string;
@@ -7,7 +7,7 @@ export type CreateRequestBody = {
 };
 
 export type GetAllRequestQuery = {
-  sortBy?: keyof FakeMovieListType;
+  sortBy?: keyof MovieType;
   page?: number;
   limit?: number;
   order?: SortOrder;

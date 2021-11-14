@@ -3,9 +3,11 @@ import { validationResult } from 'express-validator';
 import config from '../config';
 import logger from '../utils/logger';
 import HttpService from '../services/httpService';
-import StorageService, { StorageError } from '../services/storageService';
+import storageService from '../services/storageService';
+import { StorageError } from '../services/storageService/types';
 import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
-import { FakeMovieListType } from '../data/fakeMovieList';
+import { MovieType } from '../data/fakeDB';
+import { customComparer } from './helpers';
 
 class MoviesController {
   get = async (req: Request, res: Response) => {
@@ -18,7 +20,9 @@ class MoviesController {
         params: { id },
       } = req;
 
-      const data = StorageService.get(id);
+      const data = storageService.movies.get(id);
+
+      (data as StorageError).error && res.status(404);
 
       res.json(data);
     } catch (error) {
@@ -37,20 +41,10 @@ class MoviesController {
         query: { sortBy, page = 1, limit = 5, order = SortOrder.asc },
       } = req;
 
-      const data = [...StorageService.getAll()];
+      const data = [...storageService.movies.getAll()];
 
       if (sortBy && sortBy.trim()) {
-        data.sort((a, b) => {
-          if (order === SortOrder.asc) {
-            if (a[sortBy]! > b[sortBy]!) return 1;
-            if (a[sortBy]! < b[sortBy]!) return -1;
-            return 0;
-          }
-
-          if (a[sortBy]! < b[sortBy]!) return 1;
-          if (a[sortBy]! > b[sortBy]!) return -1;
-          return 0;
-        });
+        data.sort(customComparer(order, sortBy));
       }
 
       const result = this.paginate({ arr: data, page, limit });
@@ -77,7 +71,7 @@ class MoviesController {
 
       const requestData = { name, comment, personalScore };
 
-      const data = StorageService.create(requestData, httpResponse);
+      const data = storageService.movies.create(requestData, httpResponse);
 
       (data as StorageError).error && res.status(400);
 
@@ -99,7 +93,7 @@ class MoviesController {
         body: { comment, personalScore },
       } = req;
 
-      const data = StorageService.update(id, { comment, personalScore });
+      const data = storageService.movies.update(id, { comment, personalScore });
 
       (data as StorageError).error && res.status(404);
 
@@ -120,7 +114,7 @@ class MoviesController {
         params: { id },
       } = req;
 
-      const data = StorageService.delete(id);
+      const data = storageService.movies.delete(id);
 
       (data as StorageError).error && res.status(404);
 
@@ -147,7 +141,7 @@ class MoviesController {
     page,
     limit,
   }: {
-    arr: FakeMovieListType[];
+    arr: MovieType[];
     page: number;
     limit: number;
   }) => {
