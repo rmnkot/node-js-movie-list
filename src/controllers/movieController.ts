@@ -6,6 +6,7 @@ import HttpService from '../services/httpService';
 import StorageService, { StorageError } from '../services/storageService';
 import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
 import { FakeMovieListType } from '../data/fakeMovieList';
+import { customComparer } from './helpers';
 
 class MovieController {
   get = async (req: Request, res: Response) => {
@@ -19,6 +20,8 @@ class MovieController {
       } = req;
 
       const data = StorageService.get(id);
+
+      (data as StorageError).error && res.status(404);
 
       res.json(data);
     } catch (error) {
@@ -40,17 +43,7 @@ class MovieController {
       const data = [...StorageService.getAll()];
 
       if (sortBy && sortBy.trim()) {
-        data.sort((a, b) => {
-          if (order === SortOrder.asc) {
-            if (a[sortBy]! > b[sortBy]!) return 1;
-            if (a[sortBy]! < b[sortBy]!) return -1;
-            return 0;
-          }
-
-          if (a[sortBy]! < b[sortBy]!) return 1;
-          if (a[sortBy]! > b[sortBy]!) return -1;
-          return 0;
-        });
+        data.sort(customComparer(order, sortBy));
       }
 
       const result = this.paginate({ arr: data, page, limit });

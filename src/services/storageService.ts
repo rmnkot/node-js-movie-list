@@ -12,7 +12,7 @@ class StorageService {
   get(id: string) {
     const movie = fakeMovieList.find((item) => item.id === id);
 
-    return movie || {};
+    return movie || { result: false, error: 'Movie not found' };
   }
 
   getAll() {
