@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { body, oneOf, param, query } from 'express-validator';
 import { SortOrder } from '../controllers/types';
-import MovieController from '../controllers/movieController';
+import MoviesController from '../controllers/moviesController';
 import { modelTemplate } from '../data/fakeMovieList';
 import validationMessage from './validationMessage';
 
-const router = Router();
+const moviesRouter = Router();
 
-router
-  .route('/movies')
+moviesRouter
+  .route('/')
   .get(
     query('sortBy').custom((value) => {
       if (value && !Object.keys(modelTemplate).includes(value)) {
@@ -26,19 +26,19 @@ router
       }
       return Promise.resolve();
     }),
-    MovieController.getAll,
+    MoviesController.getAll,
   )
   .post(
     body('name', validationMessage.required('name')).notEmpty(),
     body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
-    MovieController.create,
+    MoviesController.create,
   );
 
-router
-  .route('/movies/:id')
-  .get(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.get)
+moviesRouter
+  .route('/:id')
+  .get(param('id', validationMessage.invalid('id')).isUUID(4), MoviesController.get)
   .patch(
     param('id', validationMessage.invalid('id')).isUUID(4),
     oneOf([
@@ -48,8 +48,11 @@ router
     body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
-    MovieController.update,
+    MoviesController.update,
   )
-  .delete(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.delete);
+  .delete(
+    param('id', validationMessage.invalid('id')).isUUID(4),
+    MoviesController.delete,
+  );
 
-export default router;
+export default moviesRouter;

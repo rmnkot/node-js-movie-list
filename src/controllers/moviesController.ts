@@ -7,7 +7,7 @@ import StorageService, { StorageError } from '../services/storageService';
 import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
 import { FakeMovieListType } from '../data/fakeMovieList';
 
-class MovieController {
+class MoviesController {
   get = async (req: Request, res: Response) => {
     try {
       const validationErrors = this.applyValidationResult(req, res);
@@ -164,4 +164,4 @@ class MovieController {
   };
 }
 
-export default new MovieController();
+export default new MoviesController();

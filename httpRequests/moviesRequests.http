@@ -1,0 +1,23 @@
+GET http://localhost:3000/api/v1/movies?sortBy=Title&page=1&limit=3&order=desc
+
+###
+
+POST http://localhost:3000/api/v1/movies
+Content-Type: application/json
+
+{"name": "avatar", "comment": "Some text", "personalScore": 9.9}
+
+###
+
+GET http://localhost:3000/api/v1/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
+
+###
+
+PATCH  http://localhost:3000/api/v1/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
+Content-Type: application/json
+
+{"comment": "My favourite", "personalScore": 3.7}
+
+###
+
+DELETE  http://localhost:3000/api/v1/movies/faa733e8-fda5-4c04-847f-d95ede7dbc29
