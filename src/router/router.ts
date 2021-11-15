@@ -4,6 +4,7 @@ import { SortOrder } from '../controllers/types';
 import MovieController from '../controllers/movieController';
 import { modelTemplate } from '../data/fakeMovieList';
 import validationMessage from './validationMessage';
+import { validate } from '../middleware/validationMiddleware';
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router
       }
       return Promise.resolve();
     }),
+    validate,
     MovieController.getAll,
   )
   .post(
@@ -33,12 +35,17 @@ router
     body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
+    validate,
     MovieController.create,
   );
 
 router
   .route('/movies/:id')
-  .get(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.get)
+  .get(
+    param('id', validationMessage.invalid('id')).isUUID(4),
+    validate,
+    MovieController.get,
+  )
   .patch(
     param('id', validationMessage.invalid('id')).isUUID(4),
     oneOf([
@@ -48,8 +55,13 @@ router
     body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
       .isFloat({ min: 1, max: 10 }),
+    validate,
     MovieController.update,
   )
-  .delete(param('id', validationMessage.invalid('id')).isUUID(4), MovieController.delete);
+  .delete(
+    param('id', validationMessage.invalid('id')).isUUID(4),
+    validate,
+    MovieController.delete,
+  );
 
 export default router;
