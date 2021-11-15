@@ -16,11 +16,11 @@ type OptionsMap = {
 };
 
 class Cli {
-  _cliArgs: string[];
+  private _cliArgs: string[];
 
-  _flag: string;
+  private _flag: string;
 
-  _value: string;
+  private _value: string;
 
   env: string;
 
@@ -32,7 +32,7 @@ class Cli {
     this._init();
   }
 
-  _processOptions = () => {
+  _processOptions() {
     const optionsMap: OptionsMap = {
       '--help': (): void => {
         logger.warn(optionsTemplate);
@@ -48,9 +48,9 @@ class Cli {
     };
 
     optionsMap[this._flag](this._value);
-  };
+  }
 
-  _init = () => {
+  _init() {
     try {
       this._flag && this._processOptions();
     } catch {
@@ -58,7 +58,7 @@ class Cli {
       logger.warn(optionsTemplate);
       process.exit(1);
     }
-  };
+  }
 }
 
 export default new Cli();
