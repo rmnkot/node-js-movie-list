@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
 import config from '../config';
 import logger from '../utils/logger';
 import HttpService from '../services/httpService';
@@ -10,12 +9,8 @@ import { MovieType } from '../data/fakeDB';
 import { customComparer } from './helpers';
 
 class MoviesController {
-  get = async (req: Request, res: Response) => {
+  async get(req: Request, res: Response) {
     try {
-      const validationErrors = this.applyValidationResult(req, res);
-
-      if (validationErrors) return;
-
       const {
         params: { id },
       } = req;
@@ -29,14 +24,10 @@ class MoviesController {
       logger.error(error);
       res.status(500).json('Internal Server Error');
     }
-  };
+  }
 
-  getAll = async (req: Request<{}, {}, {}, GetAllRequestQuery>, res: Response) => {
+  async getAll(req: Request<{}, {}, {}, GetAllRequestQuery>, res: Response) {
     try {
-      const validationErrors = this.applyValidationResult(req as unknown as Request, res);
-
-      if (validationErrors) return;
-
       const {
         query: { sortBy, page = 1, limit = 5, order = SortOrder.asc },
       } = req;
@@ -54,14 +45,10 @@ class MoviesController {
       logger.error(error);
       res.status(500).json('Internal Server Error');
     }
-  };
+  }
 
-  create = async (req: Request<{}, {}, CreateRequestBody>, res: Response) => {
+  async create(req: Request<{}, {}, CreateRequestBody>, res: Response) {
     try {
-      const validationErrors = this.applyValidationResult(req, res);
-
-      if (validationErrors) return;
-
       const {
         body: { name, comment, personalScore },
       } = req;
@@ -80,14 +67,10 @@ class MoviesController {
       logger.error(error);
       res.status(500).json('Internal Server Error');
     }
-  };
+  }
 
-  update = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     try {
-      const validationErrors = this.applyValidationResult(req, res);
-
-      if (validationErrors) return;
-
       const {
         params: { id },
         body: { comment, personalScore },
@@ -102,14 +85,10 @@ class MoviesController {
       logger.error(error);
       res.status(500).json('Internal Server Error');
     }
-  };
+  }
 
-  delete = async (req: Request, res: Response) => {
+  async delete(req: Request, res: Response) {
     try {
-      const validationErrors = this.applyValidationResult(req, res);
-
-      if (validationErrors) return;
-
       const {
         params: { id },
       } = req;
@@ -123,20 +102,9 @@ class MoviesController {
       logger.error(error);
       res.status(500).json('Internal Server Error');
     }
-  };
+  }
 
-  private applyValidationResult = (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-
-    if (!validationErrors.isEmpty()) {
-      res.status(422).json({ errors: validationErrors.array() });
-      return true;
-    }
-
-    return false;
-  };
-
-  private paginate = ({
+  private paginate({
     arr,
     page,
     limit,
@@ -144,7 +112,7 @@ class MoviesController {
     arr: MovieType[];
     page: number;
     limit: number;
-  }) => {
+  }) {
     const from = page * limit - limit;
 
     return {
@@ -155,7 +123,7 @@ class MoviesController {
         pages: Math.ceil(arr.length / limit),
       },
     };
-  };
+  }
 }
 
 export default new MoviesController();
