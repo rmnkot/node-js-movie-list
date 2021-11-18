@@ -1,49 +1,57 @@
 import { Request, Response } from 'express';
 import config from '../config';
-import logger from '../utils/logger';
 import HttpService from '../services/httpService';
 import storageService from '../services/storageService';
 import { StorageError } from '../services/storageService/types';
 import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
 import { MovieType } from '../data/fakeDB';
-import { customComparer } from './helpers';
+import { customComparer, internalErrorResponse } from './helpers';
+import { RequestWithUser } from '../types';
 
 class MoviesController {
-  async get(req: Request, res: Response) {
+  constructor() {
+    this.getAll = this.getAll.bind(this);
+  }
+
+  async get(req: RequestWithUser, res: Response) {
     try {
       const {
         params: { id },
+        user,
       } = req;
 
-      const data = storageService.movies.get(id);
+      const data = storageService.movies.get(id, user);
 
       (data as StorageError).error && res.status(404);
 
       res.json(data);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
   }
 
-  async getAll(req: Request<{}, {}, {}, GetAllRequestQuery>, res: Response) {
+  async getAll(req: RequestWithUser<{}, {}, {}, GetAllRequestQuery>, res: Response) {
     try {
       const {
         query: { sortBy, page = 1, limit = 5, order = SortOrder.asc },
+        user,
       } = req;
 
-      const data = [...storageService.movies.getAll()];
+      const data = [...storageService.movies.getAll(user)];
 
       if (sortBy && sortBy.trim()) {
         data.sort(customComparer(order, sortBy));
       }
 
-      const result = this.paginate({ arr: data, page, limit });
+      const result = this.paginate({
+        arr: data,
+        page: Number(page),
+        limit: Number(limit),
+      });
 
       res.json(result);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
   }
 
@@ -64,8 +72,7 @@ class MoviesController {
 
       res.json(data);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
   }
 
@@ -82,25 +89,24 @@ class MoviesController {
 
       res.json(data);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async delete(req: RequestWithUser, res: Response) {
     try {
       const {
         params: { id },
+        user,
       } = req;
 
-      const data = storageService.movies.delete(id);
+      const data = storageService.movies.delete(id, user?.id!);
 
       (data as StorageError).error && res.status(404);
 
       res.json(data);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
   }
 

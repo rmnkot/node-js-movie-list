@@ -1,36 +1,54 @@
-import { Request, Response } from 'express';
-import logger from '../utils/logger';
+import { Response } from 'express';
 import storageService from '../services/storageService';
+import { StorageError } from '../services/storageService/types';
+import { RequestWithUser } from '../types';
+import { internalErrorResponse } from './helpers';
 
 class UsersController {
-  get = async (req: Request, res: Response) => {
+  async get(req: RequestWithUser, res: Response) {
     try {
-      res.send('Get user');
-    } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
-    }
-  };
+      const {
+        params: { user: userId },
+      } = req;
 
-  getAll = async (req: Request, res: Response) => {
+      const user = storageService.users.get(userId);
+
+      (user as StorageError).error && res.status(404);
+
+      res.json(user);
+    } catch (error) {
+      internalErrorResponse(error, res);
+    }
+  }
+
+  async getAll(req: RequestWithUser, res: Response) {
     try {
       const users = storageService.users.getAll();
 
       res.json(users);
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
-  };
+  }
 
-  setFavourite = async (req: Request, res: Response) => {
+  async setFavourite(req: RequestWithUser, res: Response) {
     try {
-      res.send('Set favourite');
+      const {
+        body: { id, name },
+        user: authorizedUser,
+      } = req;
+
+      const userId = authorizedUser!.id;
+
+      const data = storageService.users.setFavourite(userId, { id, name });
+
+      (data as StorageError).error && res.status(404);
+
+      res.json({ favouriteMovies: data });
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
-  };
+  }
 }
 
 export default new UsersController();

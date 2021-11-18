@@ -1,32 +1,32 @@
 import { Request, Response } from 'express';
-import logger from '../utils/logger';
 import storageService from '../services/storageService';
 import { StorageError } from '../services/storageService/types';
 import { generateAccessToken } from '../services/tokenService';
 import { UserType } from '../data/fakeDB';
+import { internalErrorResponse } from './helpers';
 
 class AuthController {
-  register = async (req: Request, res: Response) => {
+  async register(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
       const candidate = storageService.users.find(email);
 
       if ((candidate as StorageError).error) {
-        const user = storageService.users.create(email, password);
+        /* Positive case */
+        const userId = storageService.users.create(email, password);
 
-        res.status(201).json(user);
+        res.status(201).json({ id: userId });
         return;
       }
 
-      res.status(400).json({ result: false, error: 'Email is already in use' });
+      res.status(400).json({ error: 'Email is already in use' });
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
-  };
+  }
 
-  login = async (req: Request, res: Response) => {
+  async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
@@ -43,10 +43,9 @@ class AuthController {
 
       res.json({ accessToken });
     } catch (error) {
-      logger.error(error);
-      res.status(500).json('Internal Server Error');
+      internalErrorResponse(error, res);
     }
-  };
+  }
 }
 
 export default new AuthController();

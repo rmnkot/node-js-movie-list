@@ -5,12 +5,16 @@ import moviesController from '../controllers/moviesController';
 import { movieModel } from '../data/fakeDB';
 import validationMessage from './validationMessage';
 import { validate } from '../middleware/validationMiddleware';
+import { authorize, userAccess } from '../middleware/authMiddleware';
 
 const moviesRouter = Router();
+
+moviesRouter.use(authorize);
 
 moviesRouter
   .route('/')
   .get(
+    /* Auth - FavMovies */
     query('sortBy').custom((value) => {
       if (value && !Object.keys(movieModel).includes(value)) {
         return Promise.reject(
@@ -27,10 +31,14 @@ moviesRouter
       }
       return Promise.resolve();
     }),
+    query('page', validationMessage.invalid('page')).isInt(),
+    query('limit', validationMessage.invalid('limit')).isInt(),
     validate,
     moviesController.getAll,
   )
   .post(
+    /* Auth */
+    userAccess,
     body('name', validationMessage.required('name')).notEmpty(),
     body('personalScore', validationMessage.minMax('personalScore', { min: 1, max: 10 }))
       .if(body('personalScore').exists())
@@ -42,11 +50,14 @@ moviesRouter
 moviesRouter
   .route('/:id')
   .get(
+    /* Auth - isFavMovie */
     param('id', validationMessage.invalid('id')).isUUID(4),
     validate,
     moviesController.get,
   )
   .patch(
+    /* Auth */
+    userAccess,
     param('id', validationMessage.invalid('id')).isUUID(4),
     oneOf([
       body('comment', validationMessage.provide('comment')).notEmpty(),
@@ -59,6 +70,8 @@ moviesRouter
     moviesController.update,
   )
   .delete(
+    /* Auth */
+    userAccess,
     param('id', validationMessage.invalid('id')).isUUID(4),
     validate,
     moviesController.delete,

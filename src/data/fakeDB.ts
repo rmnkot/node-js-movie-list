@@ -35,6 +35,7 @@ export type MovieType = {
   id: string;
   comment?: string;
   personalScore?: number;
+  isFavourite?: boolean;
 } & ServiceResponseType;
 
 export enum Role {
@@ -42,11 +43,17 @@ export enum Role {
   user = 'user',
 }
 
+export type FavouriteMovie = {
+  id: string;
+  name: string;
+};
+
 export type UserType = {
   id: string;
   email: string;
   password: string;
   role: Role;
+  favouriteMovies: FavouriteMovie[];
 };
 
 export type FakeDBType = {
@@ -62,6 +69,7 @@ export const fakeDB: FakeDBType = {
       email: 'rmnkot@test.com',
       password: '$2a$07$rJdO90/c2OKeL7znIlFNNuBAK12PGfm93olcsQ5fI7L.tMSKhJ9ii', // "admin"
       role: 'admin' as Role.admin,
+      favouriteMovies: [],
     },
   ],
 };

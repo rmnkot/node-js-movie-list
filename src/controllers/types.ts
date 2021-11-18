@@ -8,8 +8,8 @@ export type CreateRequestBody = {
 
 export type GetAllRequestQuery = {
   sortBy?: keyof MovieType;
-  page?: number;
-  limit?: number;
+  page?: number | string;
+  limit?: number | string;
   order?: SortOrder;
 };
 
