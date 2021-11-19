@@ -1,0 +1,15 @@
+GET http://localhost:3000/api/v1/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiZmFhNzMzZTgtZmRhNS00YzA0LTg0N2YtZDk1ZWRlN2RiYzI5Iiwicm9sZSI6ImFkbWluIn0sImlhdCI6MTYzNzE5NTMzMywiZXhwIjoxNjM3MTk4OTMzLCJpc3MiOiJNb3ZpZSBTZXJ2aWNlIn0.pymXUDCs_KiEM82B1NjLfzvd41Ro6C6eYx6hu0PNS48
+
+###
+
+GET http://localhost:3000/api/v1/users/faa733e8-fda5-4c04-847f-d95ede7dbc29
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiZmFhNzMzZTgtZmRhNS00YzA0LTg0N2YtZDk1ZWRlN2RiYzI5Iiwicm9sZSI6ImFkbWluIn0sImlhdCI6MTYzNzE5NTMzMywiZXhwIjoxNjM3MTk4OTMzLCJpc3MiOiJNb3ZpZSBTZXJ2aWNlIn0.pymXUDCs_KiEM82B1NjLfzvd41Ro6C6eYx6hu0PNS48
+
+###
+
+PATCH http://localhost:3000/api/v1/users/favourite
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiN2FiMDc2OGUtYjI4Ny00YjAzLThlMjEtNDQ1ODhhNTM0NDE3Iiwicm9sZSI6InVzZXIifSwiaWF0IjoxNjM3MTk0MDg0LCJleHAiOjE2MzcxOTc2ODQsImlzcyI6Ik1vdmllIFNlcnZpY2UifQ.fmfoHMDVod8rRGNNoBn86_uYpV4O_DwFY9tpLqM5gjs
+
+{ "id": "cac8079a-7bb5-4010-a1f8-189c0cb68047", "name": "Predator" }
