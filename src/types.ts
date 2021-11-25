@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { UserType } from './data/fakeDB';
+import { User } from './database/models/user';
 
 export type RequestWithUser<
   P = { [key: string]: string },
@@ -7,4 +7,4 @@ export type RequestWithUser<
   ReqBody = any,
   ReqQuery = { [key: string]: undefined | string | string[] },
   Locals extends Record<string, any> = Record<string, any>,
-> = Request<P, ResBody, ReqBody, ReqQuery, Locals> & { user?: UserType };
+> = Request<P, ResBody, ReqBody, ReqQuery, Locals> & { user?: User };

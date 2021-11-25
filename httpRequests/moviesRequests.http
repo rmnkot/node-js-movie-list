@@ -1,27 +1,29 @@
-GET http://localhost:3000/api/v1/movies?sortBy=Title&page=1&limit=3&order=desc
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiN2FiMDc2OGUtYjI4Ny00YjAzLThlMjEtNDQ1ODhhNTM0NDE3Iiwicm9sZSI6InVzZXIifSwiaWF0IjoxNjM3MTk0MDg0LCJleHAiOjE2MzcxOTc2ODQsImlzcyI6Ik1vdmllIFNlcnZpY2UifQ.fmfoHMDVod8rRGNNoBn86_uYpV4O_DwFY9tpLqM5gjs
+GET http://localhost:3000/api/v1/movies?sortBy=id&page=1&limit=3&order=asc
+ontent-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjo0LCJyb2xlIjoidXNlciJ9LCJpYXQiOjE2Mzc4NzU4OTcsImV4cCI6MTYzNzg3OTQ5NywiaXNzIjoiTW92aWUgU2VydmljZSJ9.pO8cUROHgpMQqhQC6XWSrKyMnH6yL5C31Um0x_ovyvE
+
 
 ###
 
 POST http://localhost:3000/api/v1/movies
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiN2FiMDc2OGUtYjI4Ny00YjAzLThlMjEtNDQ1ODhhNTM0NDE3Iiwicm9sZSI6InVzZXIifSwiaWF0IjoxNjM3MTk0MDg0LCJleHAiOjE2MzcxOTc2ODQsImlzcyI6Ik1vdmllIFNlcnZpY2UifQ.fmfoHMDVod8rRGNNoBn86_uYpV4O_DwFY9tpLqM5gjs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjo0LCJyb2xlIjoidXNlciJ9LCJpYXQiOjE2Mzc4NzU4OTcsImV4cCI6MTYzNzg3OTQ5NywiaXNzIjoiTW92aWUgU2VydmljZSJ9.pO8cUROHgpMQqhQC6XWSrKyMnH6yL5C31Um0x_ovyvE
 
-{"name": "Predator", "comment": "Some text", "personalScore": 9.9}
-
-###
-
-GET http://localhost:3000/api/v1/movies/815ad7dc-f020-42ad-a298-24a85a6d3cc5
+{"name": "terminator", "comment": "Some text", "personalScore": 9.9}
 
 ###
 
-PATCH  http://localhost:3000/api/v1/movies/815ad7dc-f020-42ad-a298-24a85a6d3cc5
+GET http://localhost:3000/api/v1/movies/4
+
+###
+
+PATCH  http://localhost:3000/api/v1/movies/4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiMGQzZjlkNzEtODJhMS00OWEyLThiMTEtZjJjZGIyN2NjODIyIiwicm9sZSI6InVzZXIifSwiaWF0IjoxNjM3MTkwNTAxLCJleHAiOjE2MzcxOTQxMDEsImlzcyI6Ik1vdmllIFNlcnZpY2UifQ.gXji-FXNduAeWQHeI_eQIWiF-EiCIJ4uTU7eTtRmpso
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoyLCJyb2xlIjoidXNlciJ9LCJpYXQiOjE2Mzc2MTkyMjIsImV4cCI6MTYzNzYyMjgyMiwiaXNzIjoiTW92aWUgU2VydmljZSJ9.NyvC-_CNDIVVOy8uubBLvBfEzk38erdIQ64BDhPS-n0
 
-{"comment": "My favourite", "personalScore": 3.7}
+{"comment": "My favourite movie", "personalScore": 3.7}
 
 ###
 
-DELETE  http://localhost:3000/api/v1/movies/cac8079a-7bb5-4010-a1f8-189c0cb68047
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjoiN2FiMDc2OGUtYjI4Ny00YjAzLThlMjEtNDQ1ODhhNTM0NDE3Iiwicm9sZSI6InVzZXIifSwiaWF0IjoxNjM3MTk0MDg0LCJleHAiOjE2MzcxOTc2ODQsImlzcyI6Ik1vdmllIFNlcnZpY2UifQ.fmfoHMDVod8rRGNNoBn86_uYpV4O_DwFY9tpLqM5gjs
+DELETE  http://localhost:3000/api/v1/movies/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImlkIjo0LCJyb2xlIjoidXNlciJ9LCJpYXQiOjE2Mzc4NzU4OTcsImV4cCI6MTYzNzg3OTQ5NywiaXNzIjoiTW92aWUgU2VydmljZSJ9.pO8cUROHgpMQqhQC6XWSrKyMnH6yL5C31Um0x_ovyvE

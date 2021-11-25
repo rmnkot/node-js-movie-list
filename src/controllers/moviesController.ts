@@ -1,18 +1,13 @@
 import { Request, Response } from 'express';
 import config from '../config';
-import HttpService from '../services/httpService';
+import httpService from '../services/httpService';
 import storageService from '../services/storageService';
 import { StorageError } from '../services/storageService/types';
-import { CreateRequestBody, GetAllRequestQuery, SortOrder } from './types';
-import { MovieType } from '../data/fakeDB';
-import { customComparer, internalErrorResponse } from './helpers';
+import { CreateRequestBody, GetAllRequestQuery } from './types';
+import { internalErrorResponse } from './helpers';
 import { RequestWithUser } from '../types';
 
 class MoviesController {
-  constructor() {
-    this.getAll = this.getAll.bind(this);
-  }
-
   async get(req: RequestWithUser, res: Response) {
     try {
       const {
@@ -20,7 +15,7 @@ class MoviesController {
         user,
       } = req;
 
-      const data = storageService.movies.get(id, user);
+      const data = await storageService.movies.get(Number(id), user);
 
       (data as StorageError).error && res.status(404);
 
@@ -32,24 +27,11 @@ class MoviesController {
 
   async getAll(req: RequestWithUser<{}, {}, {}, GetAllRequestQuery>, res: Response) {
     try {
-      const {
-        query: { sortBy, page = 1, limit = 5, order = SortOrder.asc },
-        user,
-      } = req;
+      const { query, user } = req;
 
-      const data = [...storageService.movies.getAll(user)];
+      const data = await storageService.movies.getAll(query, user);
 
-      if (sortBy && sortBy.trim()) {
-        data.sort(customComparer(order, sortBy));
-      }
-
-      const result = this.paginate({
-        arr: data,
-        page: Number(page),
-        limit: Number(limit),
-      });
-
-      res.json(result);
+      res.json(data);
     } catch (error) {
       internalErrorResponse(error, res);
     }
@@ -62,13 +44,18 @@ class MoviesController {
       } = req;
 
       const url = `${config.URL}t=${name}`;
-      const httpResponse = await HttpService.get(url);
+      const httpResponse = await httpService.get(url);
 
-      const requestData = { name, comment, personalScore };
+      const data = await storageService.movies.create(
+        { name, comment, personalScore },
+        httpResponse,
+      );
 
-      const data = storageService.movies.create(requestData, httpResponse);
-
-      (data as StorageError).error && res.status(400);
+      if ((data as StorageError).error) {
+        res.status(400);
+      } else {
+        res.status(201);
+      }
 
       res.json(data);
     } catch (error) {
@@ -83,7 +70,10 @@ class MoviesController {
         body: { comment, personalScore },
       } = req;
 
-      const data = storageService.movies.update(id, { comment, personalScore });
+      const data = await storageService.movies.update(Number(id), {
+        comment,
+        personalScore,
+      });
 
       (data as StorageError).error && res.status(404);
 
@@ -100,7 +90,7 @@ class MoviesController {
         user,
       } = req;
 
-      const data = storageService.movies.delete(id, user?.id!);
+      const data = await storageService.movies.delete(Number(id), user?.id!);
 
       (data as StorageError).error && res.status(404);
 
@@ -108,27 +98,6 @@ class MoviesController {
     } catch (error) {
       internalErrorResponse(error, res);
     }
-  }
-
-  private paginate({
-    arr,
-    page,
-    limit,
-  }: {
-    arr: MovieType[];
-    page: number;
-    limit: number;
-  }) {
-    const from = page * limit - limit;
-
-    return {
-      data: arr.slice(from, from + limit),
-      info: {
-        page,
-        total: arr.length,
-        pages: Math.ceil(arr.length / limit),
-      },
-    };
   }
 }
 

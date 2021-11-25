@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { body, oneOf, param, query } from 'express-validator';
 import { SortOrder } from '../controllers/types';
 import moviesController from '../controllers/moviesController';
-import { movieModel } from '../data/fakeDB';
 import validationMessage from './validationMessage';
 import { validate } from '../middleware/validationMiddleware';
 import { authorize, userAccess } from '../middleware/authMiddleware';
+import { Movie } from '../database/models/movie';
 
 const moviesRouter = Router();
 
@@ -16,9 +16,9 @@ moviesRouter
   .get(
     /* Auth - FavMovies */
     query('sortBy').custom((value) => {
-      if (value && !Object.keys(movieModel).includes(value)) {
+      if (value && !Object.keys(Movie.rawAttributes).includes(value)) {
         return Promise.reject(
-          new Error(validationMessage.oneOf('sortBy', Object.keys(movieModel))),
+          new Error(validationMessage.oneOf('sortBy', Object.keys(Movie.rawAttributes))),
         );
       }
       return Promise.resolve();
@@ -51,14 +51,14 @@ moviesRouter
   .route('/:id')
   .get(
     /* Auth - isFavMovie */
-    param('id', validationMessage.invalid('id')).isUUID(4),
+    param('id', validationMessage.invalid('id')).isInt(),
     validate,
     moviesController.get,
   )
   .patch(
     /* Auth */
     userAccess,
-    param('id', validationMessage.invalid('id')).isUUID(4),
+    param('id', validationMessage.invalid('id')).isInt(),
     oneOf([
       body('comment', validationMessage.provide('comment')).notEmpty(),
       body('personalScore', validationMessage.provide('personalScore')).notEmpty(),
@@ -72,7 +72,7 @@ moviesRouter
   .delete(
     /* Auth */
     userAccess,
-    param('id', validationMessage.invalid('id')).isUUID(4),
+    param('id', validationMessage.invalid('id')).isInt(),
     validate,
     moviesController.delete,
   );

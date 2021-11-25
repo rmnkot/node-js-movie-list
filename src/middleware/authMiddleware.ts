@@ -3,9 +3,13 @@ import { StorageError } from '../services/storageService/types';
 import storageService from '../services/storageService';
 import { verifyAccessToken } from '../services/tokenService';
 import { RequestWithUser } from '../types';
-import { Role, UserType } from '../data/fakeDB';
+import { Role, User } from '../database/models/user';
 
-export const authorize = (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const authorize = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction,
+) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -22,10 +26,10 @@ export const authorize = (req: RequestWithUser, res: Response, next: NextFunctio
     return;
   }
 
-  const user = storageService.users.get(userPayload.id);
+  const user = await storageService.users.get(userPayload.id);
 
   if (!(user as StorageError).error) {
-    req.user = user as UserType;
+    req.user = user as User;
   }
 
   next();

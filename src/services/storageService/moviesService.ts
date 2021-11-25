@@ -1,117 +1,135 @@
-import { v4 as uuidv4 } from 'uuid';
-import { CreateRequestBody } from '../../controllers/types';
-import { ResponseState, ServiceResponseType } from '../httpService';
 import {
-  fakeDB,
-  MovieType,
-  movieModel,
-  UserType,
-  FavouriteMovie,
-} from '../../data/fakeDB';
+  CreateRequestBody,
+  GetAllRequestQuery,
+  SortOrder,
+} from '../../controllers/types';
+import { ResponseState, ServiceResponseType } from '../httpService';
 import { StorageError } from './types';
-import { users as userService } from './usersService';
+import { Movie } from '../../database/models/movie';
+import { User } from '../../database/models/user';
+import { FavMovie } from '../../database/models/favMovie';
 
 class MoviesService {
-  get(id: string, user?: UserType) {
-    const movie = fakeDB.movies.find((item) => item.id === id);
-
-    if (user && movie) {
-      const isFavMovie = user.favouriteMovies.find((item) => item.id === movie.id);
-
-      isFavMovie && (movie.isFavourite = true);
-    }
+  async get(id: number, user?: User) {
+    const movie = await Movie.findByPk(id, {
+      include: {
+        model: FavMovie,
+        as: 'favourites',
+        attributes: { exclude: ['createdAt', 'updatedAt', 'movie_id'] },
+        where: {
+          user_id: user?.id || null,
+        },
+        required: false,
+      },
+    });
 
     return movie || { result: false, error: 'Movie not found' };
   }
 
-  getAll(user?: UserType) {
-    if (!user) return fakeDB.movies;
+  async getAll(
+    { sortBy = 'id', page = 1, limit = 5, order = SortOrder.asc }: GetAllRequestQuery,
+    user?: User,
+  ) {
+    const offset = page * limit - limit;
 
-    const favMoviesMap = user.favouriteMovies.reduce(
-      (acc: Record<string, FavouriteMovie>, movie) => ({
-        ...acc,
-        ...{ [movie.id]: movie },
-      }),
-      {},
-    );
-
-    const movies = fakeDB.movies.map((movie) => {
-      if (favMoviesMap[movie.id]) {
-        const movieCopy = { ...movie };
-
-        movieCopy.isFavourite = true;
-        return movieCopy;
-      }
-      return movie;
+    const { count, rows } = await Movie.findAndCountAll({
+      order: [[sortBy, order]],
+      limit,
+      offset,
+      include: {
+        model: FavMovie,
+        as: 'favourites',
+        attributes: { exclude: ['createdAt', 'updatedAt', 'movie_id'] },
+        where: {
+          user_id: user?.id || null,
+        },
+        required: false,
+      },
     });
 
-    return movies;
+    return {
+      data: rows,
+      info: {
+        page,
+        total: count,
+        pages: Math.ceil(count / limit),
+      },
+    };
   }
 
-  create(
+  async create(
     requestData: CreateRequestBody,
     httpResponse: ServiceResponseType,
-  ): MovieType | StorageError {
-    if (
-      fakeDB.movies.some(
-        (item) =>
-          (item.imdbID && item.imdbID === httpResponse.imdbID) ||
-          item.Title === requestData.name,
-      )
-    ) {
-      return { result: false, error: 'Movie already exist' };
-    }
-
-    const generatedId = uuidv4();
-
+  ): Promise<Movie | StorageError> {
     const data = {
-      ...movieModel,
-      id: generatedId,
-      Title: requestData.name,
-      comment: requestData.comment,
-      personalScore: requestData.personalScore,
-      ...(httpResponse.Response === ResponseState.True && httpResponse),
-    };
-
-    fakeDB.movies.push(data);
-
-    return data;
-  }
-
-  update(
-    id: string,
-    requestData: Omit<CreateRequestBody, 'name'>,
-  ): MovieType | StorageError {
-    const movie = fakeDB.movies.find((item) => item.id === id);
-
-    if (!movie) {
-      return { result: false, error: 'Movie not found' };
-    }
-
-    const data = {
-      ...movie,
+      title: requestData.name,
+      imdb_id: '',
       ...(requestData.comment && { comment: requestData.comment }),
-      ...(requestData.personalScore && { personalScore: requestData.personalScore }),
+      ...(requestData.personalScore && { personal_score: requestData.personalScore }),
+      ...(httpResponse.Response === ResponseState.True && {
+        title: httpResponse.Title || '',
+        year: httpResponse.Year,
+        rated: httpResponse.Rated,
+        released: httpResponse.Released,
+        runtime: httpResponse.Runtime,
+        genre: httpResponse.Genre,
+        director: httpResponse.Director,
+        writer: httpResponse.Writer,
+        actors: httpResponse.Actors,
+        plot: httpResponse.Plot,
+        language: httpResponse.Language,
+        country: httpResponse.Country,
+        awards: httpResponse.Awards,
+        poster: httpResponse.Poster,
+        metascore: httpResponse.Metascore,
+        imdb_rating: httpResponse.imdbRating,
+        imdb_votes: httpResponse.imdbVotes,
+        imdb_id: httpResponse.imdbID,
+        type: httpResponse.Type,
+        dvd: httpResponse.DVD,
+        box_office: httpResponse.BoxOffice,
+        production: httpResponse.Production,
+        website: httpResponse.Website,
+        response: httpResponse.Response,
+      }),
     };
 
-    const movieIdx = fakeDB.movies.findIndex((item) => item.id === id);
+    const [movie, isCreated] = await Movie.findOrCreate({
+      where: { imdb_id: httpResponse.imdbID || null },
+      defaults: data,
+      raw: true,
+    });
 
-    fakeDB.movies.splice(movieIdx, 1, data);
-
-    return data;
+    return isCreated ? movie : { result: false, error: 'Movie already exist' };
   }
 
-  delete(movieId: string, userId: string) {
-    // delete user's favourite movie
-    userService.deleteFavourite(userId, movieId);
+  async update(
+    id: number,
+    requestData: Omit<CreateRequestBody, 'name'>,
+  ): Promise<Movie | StorageError> {
+    const [isUpdated, movieList] = await Movie.update(
+      { comment: requestData.comment, personal_score: requestData.personalScore },
+      {
+        where: {
+          id,
+        },
+        returning: true,
+      },
+    );
 
-    const movieIdx = fakeDB.movies.findIndex((item) => item.id === movieId);
+    return isUpdated ? movieList[0] : { result: false, error: 'Movie not found' };
+  }
 
-    if (movieIdx === -1) return { result: false, error: 'Movie was not found' };
+  async delete(movieId: number, userId: number) {
+    const res = await Movie.destroy({
+      where: {
+        id: movieId,
+      },
+    });
 
-    fakeDB.movies.splice(movieIdx, 1);
-
-    return { result: true, message: 'Movie was deleted successfully' };
+    return res
+      ? { result: true, message: 'Movie was deleted successfully' }
+      : { result: false, error: 'Movie was not found' };
   }
 }
 

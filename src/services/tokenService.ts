@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { Role } from '../data/fakeDB';
+import { Role } from '../database/models/user';
 import config from '../config';
 import logger from '../utils/logger';
 
 declare module 'jsonwebtoken' {
   export interface CustomJwtPayload extends jwt.JwtPayload {
     payload: {
-      id: string;
+      id: number;
       role: Role;
     };
   }
@@ -17,7 +17,7 @@ const jwtHeaders = {
   expiresIn: '1h',
 };
 
-export const generateAccessToken = (id: string, role: Role) => {
+export const generateAccessToken = (id: number, role: Role) => {
   const payload = {
     id,
     role,
