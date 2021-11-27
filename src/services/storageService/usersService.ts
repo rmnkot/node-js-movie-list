@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { ForeignKeyConstraintError } from 'sequelize/dist';
 import { Role, User } from '../../database/models/user';
 import { FavMovie } from '../../database/models/favMovie';
 
@@ -13,7 +14,7 @@ class UsersService {
       },
     });
 
-    return user || { result: false, error: 'User not found' };
+    return user || { result: false, error: 'User was not found' };
   }
 
   async getAll() {
@@ -44,7 +45,7 @@ class UsersService {
   async find(email: string, password: string) {
     const user = await User.findOne({ where: { email }, raw: true });
 
-    if (!user) return { result: false, error: 'User not found', status: 404 };
+    if (!user) return { result: false, error: 'User was not found', status: 404 };
 
     if (!bcrypt.compareSync(password, user.password)) {
       return { result: false, error: 'Invalid password', statue: 422 };
@@ -54,14 +55,21 @@ class UsersService {
   }
 
   async setFavourite(userId: number, movieId: number) {
-    const [favMovie, isCreated] = await FavMovie.findOrCreate({
-      where: { user_id: userId, movie_id: movieId },
-      raw: true,
-    });
+    try {
+      const [favMovie, isCreated] = await FavMovie.findOrCreate({
+        where: { user_id: userId, movie_id: movieId },
+        raw: true,
+      });
 
-    return isCreated
-      ? { fav_movie_id: favMovie.id }
-      : { result: false, error: 'Movie is already selected as favourite' };
+      return isCreated
+        ? { fav_movie_id: favMovie.id }
+        : { result: false, error: 'Movie is already selected as favourite' };
+    } catch (error) {
+      if (error instanceof ForeignKeyConstraintError) {
+        return { result: false, error: `There is no movie with ID of ${movieId}` };
+      }
+      return Promise.reject(error);
+    }
   }
 }
 

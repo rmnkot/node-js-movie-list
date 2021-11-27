@@ -23,7 +23,7 @@ class MoviesService {
       },
     });
 
-    return movie || { result: false, error: 'Movie not found' };
+    return movie || { result: false, error: 'Movie was not found' };
   }
 
   async getAll(
@@ -100,7 +100,7 @@ class MoviesService {
       raw: true,
     });
 
-    return isCreated ? movie : { result: false, error: 'Movie already exist' };
+    return isCreated ? movie : { result: false, error: 'Movie already exists' };
   }
 
   async update(
@@ -117,7 +117,7 @@ class MoviesService {
       },
     );
 
-    return isUpdated ? movieList[0] : { result: false, error: 'Movie not found' };
+    return isUpdated ? movieList[0] : { result: false, error: 'Movie was not found' };
   }
 
   async delete(movieId: number, userId: number) {
