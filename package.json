@@ -6,7 +6,11 @@
   "scripts": {
     "start": "nodemon ./src/index.ts",
     "build": "tsc --build",
-    "debug": "node --inspect-brk --require ts-node/register ./src/index.ts"
+    "debug": "node --inspect-brk --require ts-node/register ./src/index.ts",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "db:seed:all": "npx sequelize-cli db:seed:all",
+    "db:seed:undo:all": "npx sequelize-cli db:seed:undo:all"
   },
   "repository": {
     "type": "git",
@@ -25,6 +29,7 @@
     "@types/jsonwebtoken": "^8.5.5",
     "@types/node": "^16.11.6",
     "@types/uuid": "^8.3.1",
+    "@types/validator": "^13.7.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
@@ -36,6 +41,7 @@
     "eslint-plugin-unused-imports": "^1.1.5",
     "nodemon": "^2.0.14",
     "prettier": "^2.4.1",
+    "sequelize-cli": "^6.3.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
@@ -46,6 +52,9 @@
     "express": "^4.17.1",
     "express-validator": "^6.13.0",
     "jsonwebtoken": "^8.5.1",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.12.0-alpha.1",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   }

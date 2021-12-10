@@ -6,34 +6,30 @@ export enum ResponseState {
 }
 
 export type ServiceResponseType = {
-  Title: string | null;
-  Year: string | null;
-  Rated: string | null;
-  Released: string | null;
-  Runtime: string | null;
-  Genre: string | null;
-  Director: string | null;
-  Writer: string | null;
-  Actors: string | null;
-  Plot: string | null;
-  Language: string | null;
-  Country: string | null;
-  Awards: string | null;
-  Poster: string | null;
-  Ratings: {
-    Source: string | null;
-    Value: string | null;
-  }[];
-  Metascore: string | null;
-  imdbRating: string | null;
-  imdbVotes: string | null;
-  imdbID: string | null;
-  Type: string | null;
-  DVD: string | null;
-  BoxOffice: string | null;
-  Production: string | null;
-  Website: string | null;
-  Response: ResponseState | null;
+  Title: string;
+  Year: string;
+  Rated: string;
+  Released: string;
+  Runtime: string;
+  Genre: string;
+  Director: string;
+  Writer: string;
+  Actors: string;
+  Plot: string;
+  Language: string;
+  Country: string;
+  Awards: string;
+  Poster: string;
+  Metascore: string;
+  imdbRating: string;
+  imdbVotes: string;
+  imdbID: string;
+  Type: string;
+  DVD: string;
+  BoxOffice: string;
+  Production: string;
+  Website: string;
+  Response: ResponseState;
 };
 
 class HttpService {

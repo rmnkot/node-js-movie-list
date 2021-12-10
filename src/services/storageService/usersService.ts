@@ -1,77 +1,75 @@
-import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
-import { fakeDB, FavouriteMovie, Role } from '../../data/fakeDB';
+import { ForeignKeyConstraintError } from 'sequelize/dist';
+import { Role, User } from '../../database/models/user';
+import { FavMovie } from '../../database/models/favMovie';
 
 class UsersService {
-  get(userId: string) {
-    const user = fakeDB.users.find((item) => item.id === userId);
-
-    return user || { result: false, error: 'User not found' };
-  }
-
-  getAll() {
-    return fakeDB.users;
-  }
-
-  create(email: string, password: string) {
-    const generatedId = uuidv4();
-    const hashedPassword = bcrypt.hashSync(password, 7);
-
-    const newUser = {
-      id: generatedId,
-      email,
-      password: hashedPassword,
-      role: Role.user,
-      favouriteMovies: [],
-    };
-
-    fakeDB.users.push(newUser);
-
-    return newUser.id;
-  }
-
-  find(email: string, password?: string) {
-    const user = fakeDB.users.find((item) => {
-      if (password) {
-        return item.email === email && bcrypt.compareSync(password, item.password);
-      }
-
-      return item.email === email;
+  async get(userId: number) {
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+      include: {
+        model: FavMovie,
+        as: 'fav_movies',
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+      },
     });
 
-    return user || { result: false, error: 'User not found' };
+    return user || { result: false, error: 'User was not found' };
   }
 
-  setFavourite(userId: string, { id, name }: FavouriteMovie) {
-    const user = fakeDB.users.find((item) => item.id === userId);
+  async getAll() {
+    const users = await User.findAll({
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+      raw: true,
+    });
 
-    if (!user) return { result: false, error: 'User not found' };
-
-    const data = {
-      ...user,
-      favouriteMovies: [...user.favouriteMovies, { id, name }],
-    };
-
-    const userIdx = fakeDB.users.findIndex((item) => item.id === userId);
-
-    fakeDB.users.splice(userIdx, 1, data);
-
-    return data.favouriteMovies;
+    return users;
   }
 
-  deleteFavourite(userId: string, movieId: string) {
-    const user = fakeDB.users.find((item) => item.id === userId);
+  async create(email: string, password: string) {
+    const [user, isCreated] = await User.findOrCreate({
+      where: { email },
+      defaults: {
+        email,
+        password,
+        role: Role.user,
+      },
+      raw: true,
+    });
 
-    if (!user) return;
+    return isCreated
+      ? { id: user.id }
+      : { result: false, error: 'Email is already in use' };
+  }
 
-    const data = {
-      ...user,
-      favouriteMovies: user.favouriteMovies.filter((movie) => movie.id !== movieId),
-    };
+  async find(email: string, password: string) {
+    const user = await User.findOne({ where: { email }, raw: true });
 
-    const userIdx = fakeDB.users.findIndex((item) => item.id === userId);
+    if (!user) return { result: false, error: 'User was not found', status: 404 };
 
-    fakeDB.users.splice(userIdx, 1, data);
+    if (!bcrypt.compareSync(password, user.password)) {
+      return { result: false, error: 'Invalid password', statue: 422 };
+    }
+
+    return user;
+  }
+
+  async setFavourite(userId: number, movieId: number) {
+    try {
+      const [favMovie, isCreated] = await FavMovie.findOrCreate({
+        where: { user_id: userId, movie_id: movieId },
+        raw: true,
+      });
+
+      return isCreated
+        ? { fav_movie_id: favMovie.id }
+        : { result: false, error: 'Movie is already selected as favourite' };
+    } catch (error) {
+      if (error instanceof ForeignKeyConstraintError) {
+        return { result: false, error: `There is no movie with ID of ${movieId}` };
+      }
+      return Promise.reject(error);
+    }
   }
 }
 

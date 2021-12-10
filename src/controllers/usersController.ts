@@ -11,7 +11,7 @@ class UsersController {
         params: { user: userId },
       } = req;
 
-      const user = storageService.users.get(userId);
+      const user = await storageService.users.get(Number(userId));
 
       (user as StorageError).error && res.status(404);
 
@@ -23,7 +23,7 @@ class UsersController {
 
   async getAll(req: RequestWithUser, res: Response) {
     try {
-      const users = storageService.users.getAll();
+      const users = await storageService.users.getAll();
 
       res.json(users);
     } catch (error) {
@@ -34,17 +34,17 @@ class UsersController {
   async setFavourite(req: RequestWithUser, res: Response) {
     try {
       const {
-        body: { id, name },
+        body: { movie_id },
         user: authorizedUser,
       } = req;
 
       const userId = authorizedUser!.id;
 
-      const data = storageService.users.setFavourite(userId, { id, name });
+      const data = await storageService.users.setFavourite(userId, movie_id);
 
-      (data as StorageError).error && res.status(404);
+      (data as StorageError).error && res.status(400);
 
-      res.json({ favouriteMovies: data });
+      res.json(data);
     } catch (error) {
       internalErrorResponse(error, res);
     }
